@@ -3,7 +3,7 @@ package controllers
 import (
     "context"
     "backend/db"
-    "backend/models"
+    "backend/api/models"
     "net/http"
     "time"
     "github.com/gin-gonic/gin"

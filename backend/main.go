@@ -2,7 +2,7 @@ package main
 
 import (
     "backend/db"
-    "backend/routes"
+    "backend/api/routes"
 )
 
 func main() {
