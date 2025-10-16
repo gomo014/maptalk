@@ -20,15 +20,40 @@ function MapView() {
     setComment(''); // 新しいマーカーを置くときはコメントをリセット
   };
 
-  const handleCommentSubmit = (e) => {
+  const handleCommentSubmit = async (e) => {
     e.preventDefault();
-    // 本来はここでAPIにデータを送信します
-    console.log('保存するコメント:', comment);
-    console.log('場所:', marker);
-    alert(`コメント「${comment}」を投稿しました！`);
-    setComment('');
-    // 必要に応じてポップアップを閉じる（マーカーを消す）こともできます
-    // setMarker(null);
+
+    if (!comment.trim()) {
+      alert('コメントを入力してください。');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:8080/pins', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          comment: comment,
+          lat: marker.lat,
+          lng: marker.lng,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('データの保存に失敗しました。');
+      }
+
+      const newPin = await response.json();
+      console.log('保存成功:', newPin);
+      alert('投稿が保存されました！');
+      setMarker(null); // 保存が成功したらマーカーを消す
+
+    } catch (error) {
+      console.error('投稿エラー:', error);
+      alert('投稿に失敗しました。');
+    }
   }
 
   return (
@@ -46,7 +71,6 @@ function MapView() {
         <Marker position={[marker.lat, marker.lng]}>
           <Popup minWidth={200}>
             <div className="popup-form-container">
-              <p>座標: {marker.lat.toFixed(4)}, {marker.lng.toFixed(4)}</p>
               <form onSubmit={handleCommentSubmit}>
                 <textarea
                   value={comment}
