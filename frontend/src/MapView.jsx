@@ -87,7 +87,6 @@ function MapView({ pins, onPinAdded, mapRefreshTrigger }) {
         <Marker position={[marker.lat, marker.lng]}>
           <Popup minWidth={200}>
             <div className="popup-form-container">
-              <p>座標: {marker.lat.toFixed(4)}, {marker.lng.toFixed(4)}</p>
               <form onSubmit={handleCommentSubmit}>
                 <textarea
                   value={comment}

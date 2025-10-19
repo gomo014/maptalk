@@ -6,14 +6,15 @@ import (
     "net/http"
     "time"
     "github.com/gin-gonic/gin"
+
 )
 
 func CreatePin(c *gin.Context) {
-    var pin models.Pin
-    if err := c.ShouldBindJSON(&pin); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-        return
-    }
+	var pin models.Pin
+	if err := c.ShouldBindJSON(&pin); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
 	// TODO: 認証機能が実装されたら、実際のユーザーIDに置き換える
 	pin.UserID = 1
