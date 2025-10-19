@@ -12,8 +12,11 @@ func SetupRouter() *gin.Engine {
         c.JSON(200, gin.H{"message": "pong"})
     })
 
-    r.POST("/pins", controllers.CreatePin)
-    r.GET("/pins", controllers.GetPins)
+    api := r.Group("/api")
+    {
+        api.POST("/pins", controllers.CreatePin)
+        api.GET("/pins", controllers.GetPins)
+    }
 
     return r
 }
