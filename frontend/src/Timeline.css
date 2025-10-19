@@ -10,6 +10,21 @@
     overflow-y: auto;
 }
 
+.new-pins-notifier {
+    background-color: #1d9bf0;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    cursor: pointer;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.new-pins-notifier:hover {
+    background-color: #1a8cd8;
+}
+
 .timeline-item {
     padding: 1rem;
     border-bottom: 1px solid #eee;
@@ -24,4 +39,9 @@
 .timeline-timestamp {
     font-size: 0.8rem;
     color: #555;
+}
+
+.no-pins-message {
+    text-align: center;
+    padding: 2rem;
 }
