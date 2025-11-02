@@ -44,12 +44,14 @@
 .no-pins-message {
     text-align: center;
     padding: 2rem;
+    color: #333;
 }
 
 .auth-link-container {
     padding: 1rem;
     border-bottom: 1px solid #ddd;
     text-align: center;
+    color: #333;
 }
 
 .auth-link-button {
