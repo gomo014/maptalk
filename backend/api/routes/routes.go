@@ -22,6 +22,10 @@ func SetupRouter() *gin.Engine {
     {
         api.POST("/pins", controllers.CreatePin)
         api.GET("/pins", controllers.GetPins)
+		api.POST("/pins/:id/like", controllers.LikePin)
+		api.DELETE("/pins/:id/like", controllers.UnlikePin)
+		api.POST("/login", controllers.Login)
+		api.POST("/register", controllers.RegisterUser)
     }
 
     return r

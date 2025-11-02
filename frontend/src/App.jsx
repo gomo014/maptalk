@@ -8,6 +8,7 @@ import "allotment/dist/style.css";
 function App() {
   const [displayedPins, setDisplayedPins] = useState([]);
   const [newPins, setNewPins] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
   const [mapRefreshTrigger, setMapRefreshTrigger] = useState(0);
 
   // 新しいピンがないか確認する関数
@@ -36,6 +37,12 @@ function App() {
 
   // 初回ロード時
   useEffect(() => {
+    // ログイン状態を確認
+    const user = localStorage.getItem('maptalk_user');
+    if (user) {
+      setCurrentUser(JSON.parse(user));
+    }
+
     const initialFetch = async () => {
       try {
         const response = await fetch('/api/pins');
@@ -65,11 +72,19 @@ function App() {
     setNewPins([]);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('maptalk_user');
+    setCurrentUser(null);
+    // 必要に応じてページをリロードしても良い
+    // window.location.reload();
+  };
+
   return (
     <div className="app-container">
       <Allotment onChange={handleAllotmentChange}>
         <Allotment.Pane preferredSize="20%" minSize={200}>
-          <Timeline pins={displayedPins} newPinsCount={newPins.length} onShowNewPins={showNewPins} />
+          <Timeline pins={displayedPins} newPinsCount={newPins.length} onShowNewPins={showNewPins} 
+            currentUser={currentUser} onLogout={handleLogout} />
         </Allotment.Pane>
         <MapView pins={displayedPins} onPinAdded={checkForNewPins} mapRefreshTrigger={mapRefreshTrigger} />
       </Allotment>
