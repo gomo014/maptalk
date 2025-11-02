@@ -38,8 +38,29 @@ func CreatePin(c *gin.Context) {
 }
 
 func GetPins(c *gin.Context) {
-	rows, err := db.Pool.Query(c.Request.Context(),
-		"SELECT id, user_id, lat, lng, comment, created_at FROM pins ORDER BY created_at DESC")
+	// TODO: 認証機能が実装されたら、実際のユーザーIDに置き換える
+	currentUserID := 1
+
+	query := `
+		SELECT
+			p.id,
+			p.user_id,
+			p.lat,
+			p.lng,
+			p.comment,
+			p.created_at,
+			COUNT(l.id) as like_count,
+			EXISTS(SELECT 1 FROM likes WHERE pin_id = p.id AND user_id = $1) as liked
+		FROM
+			pins p
+		LEFT JOIN
+			likes l ON p.id = l.pin_id
+		GROUP BY
+			p.id
+		ORDER BY
+			p.created_at DESC
+	`
+	rows, err := db.Pool.Query(c.Request.Context(), query, currentUserID)
     if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get pins: " + err.Error()})
         return
@@ -49,7 +70,7 @@ func GetPins(c *gin.Context) {
     var pins []models.Pin
     for rows.Next() {
         var p models.Pin
-        if err := rows.Scan(&p.ID, &p.UserID, &p.Lat, &p.Lng, &p.Comment, &p.CreatedAt); err != nil {
+		if err := rows.Scan(&p.ID, &p.UserID, &p.Lat, &p.Lng, &p.Comment, &p.CreatedAt, &p.LikeCount, &p.Liked); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to scan pin: " + err.Error()})
             return
         }
@@ -62,4 +83,38 @@ func GetPins(c *gin.Context) {
 	}
 
     c.JSON(http.StatusOK, pins)
+}
+
+func LikePin(c *gin.Context) {
+	pinID := c.Param("id")
+	// TODO: 認証機能が実装されたら、実際のユーザーIDに置き換える
+	userID := 1
+
+	query := `
+		INSERT INTO likes (user_id, pin_id)
+		VALUES ($1, $2)
+		ON CONFLICT (user_id, pin_id) DO NOTHING
+	`
+	_, err := db.Pool.Exec(c.Request.Context(), query, userID, pinID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to like pin: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": "liked"})
+}
+
+func UnlikePin(c *gin.Context) {
+	pinID := c.Param("id")
+	// TODO: 認証機能が実装されたら、実際のユーザーIDに置き換える
+	userID := 1
+
+	query := "DELETE FROM likes WHERE user_id = $1 AND pin_id = $2"
+	_, err := db.Pool.Exec(c.Request.Context(), query, userID, pinID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to unlike pin: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": "unliked"})
 }

@@ -9,4 +9,6 @@ type Pin struct {
     Lng       float64   `json:"lng" binding:"required"`
     Comment   string    `json:"comment" binding:"required"`
     CreatedAt time.Time `json:"created_at"`
+    LikeCount int       `json:"like_count"`
+	Liked     bool      `json:"liked"`
 }
