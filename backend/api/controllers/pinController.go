@@ -1,12 +1,13 @@
 package controllers
 
 import (
-    "backend/db"
-    "backend/api/models"
-    "net/http"
-    "time"
-    "github.com/gin-gonic/gin"
+	"backend/api/models"
+	"backend/db"
+	"strconv"
+	"net/http"
+	"time"
 
+	"github.com/gin-gonic/gin"
 )
 
 func CreatePin(c *gin.Context) {
@@ -16,15 +17,20 @@ func CreatePin(c *gin.Context) {
 		return
 	}
 
-	// TODO: 認証機能が実装されたら、実際のユーザーIDに置き換える
-	pin.UserID = 1
+	userIDStr := c.GetHeader("X-User-ID")
+	userID, err := strconv.Atoi(userIDStr)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user ID"})
+		return
+	}
+	pin.UserID = userID
 
     query := `
         INSERT INTO pins (user_id, lat, lng, comment, created_at)
         VALUES ($1, $2, $3, $4, $5)
         RETURNING id, created_at
     `
-	err := db.Pool.QueryRow(c.Request.Context(),
+	err = db.Pool.QueryRow(c.Request.Context(),
         query,
         pin.UserID, pin.Lat, pin.Lng, pin.Comment, time.Now(),
     ).Scan(&pin.ID, &pin.CreatedAt)
@@ -38,8 +44,12 @@ func CreatePin(c *gin.Context) {
 }
 
 func GetPins(c *gin.Context) {
-	// TODO: 認証機能が実装されたら、実際のユーザーIDに置き換える
-	currentUserID := 1
+	userIDStr := c.GetHeader("X-User-ID")
+	// ログインしていない場合も考慮し、IDがなければ0（どの投稿にもいいねしていない状態）とする
+	currentUserID, err := strconv.Atoi(userIDStr)
+	if err != nil {
+		currentUserID = 0
+	}
 
 	query := `
 		SELECT
@@ -88,14 +98,19 @@ func GetPins(c *gin.Context) {
 func LikePin(c *gin.Context) {
 	pinID := c.Param("id")
 	// TODO: 認証機能が実装されたら、実際のユーザーIDに置き換える
-	userID := 1
+	userIDStr := c.GetHeader("X-User-ID")
+	userID, err := strconv.Atoi(userIDStr)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user ID"})
+		return
+	}
 
 	query := `
 		INSERT INTO likes (user_id, pin_id)
 		VALUES ($1, $2)
 		ON CONFLICT (user_id, pin_id) DO NOTHING
 	`
-	_, err := db.Pool.Exec(c.Request.Context(), query, userID, pinID)
+	_, err = db.Pool.Exec(c.Request.Context(), query, userID, pinID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to like pin: " + err.Error()})
 		return
@@ -107,10 +122,15 @@ func LikePin(c *gin.Context) {
 func UnlikePin(c *gin.Context) {
 	pinID := c.Param("id")
 	// TODO: 認証機能が実装されたら、実際のユーザーIDに置き換える
-	userID := 1
+	userIDStr := c.GetHeader("X-User-ID")
+	userID, err := strconv.Atoi(userIDStr)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user ID"})
+		return
+	}
 
 	query := "DELETE FROM likes WHERE user_id = $1 AND pin_id = $2"
-	_, err := db.Pool.Exec(c.Request.Context(), query, userID, pinID)
+	_, err = db.Pool.Exec(c.Request.Context(), query, userID, pinID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to unlike pin: " + err.Error()})
 		return

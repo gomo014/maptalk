@@ -5,7 +5,6 @@ import './index.css'
 import App from './App.jsx'
 import Auth from './Auth.jsx';
 import Login from './Login.jsx';
-import 'leaflet/dist/leaflet.css';
 
 const router = createBrowserRouter([
   {
