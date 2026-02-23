@@ -12,6 +12,17 @@ function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [mapRefreshTrigger, setMapRefreshTrigger] = useState(0);
 
+  // 2週間以内のピンのみをフィルタリングする関数
+  const filterPinsByAge = (pins) => {
+    const twoWeeksAgo = new Date();
+    twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+    
+    return pins.filter(pin => {
+      const createdAt = new Date(pin.created_at);
+      return createdAt >= twoWeeksAgo;
+    });
+  };
+
   // 新しいピンがないか確認する関数
   const checkForNewPins = async () => {
     try {
@@ -141,10 +152,10 @@ function App() {
       <UserMenu currentUser={currentUser} onLogout={handleLogout} />
       <Allotment onChange={handleAllotmentChange}>
         <Allotment.Pane preferredSize="20%" minSize={200}>
-          <Timeline pins={displayedPins} newPinsCount={newPins.length} onShowNewPins={showNewPins}
+          <Timeline pins={filterPinsByAge(displayedPins)} newPinsCount={newPins.length} onShowNewPins={showNewPins}
             onLikeToggle={handleLikeToggle} />
         </Allotment.Pane>
-        <MapView pins={displayedPins} onPinAdded={addPin} mapRefreshTrigger={mapRefreshTrigger} />
+        <MapView pins={filterPinsByAge(displayedPins)} onPinAdded={addPin} mapRefreshTrigger={mapRefreshTrigger} />
       </Allotment>
     </div>
   );
