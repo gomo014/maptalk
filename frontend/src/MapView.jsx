@@ -90,6 +90,12 @@ function MapView({ pins, onPinAdded, mapRefreshTrigger }) {
     <>
       <style>
         {`
+          /* InfoWindowコンテナの幅を制限 */
+          .gm-style-iw-d {
+            max-width: 300px !important;
+            width: auto !important;
+            padding-left:7px;
+          }
           /* InfoWindowの閉じるボタンのスタイル */
           .gm-style-iw button.gm-ui-hover-effect {
             width: 12px !important;
