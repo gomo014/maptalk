@@ -87,23 +87,58 @@ function MapView({ pins, onPinAdded, mapRefreshTrigger }) {
   if (!isLoaded) return <div>Loading Google Maps...</div>;
 
   return (
-    <GoogleMap
-      mapContainerStyle={containerStyle}
-      center={defaultCenter}
-      zoom={13}
-      onLoad={onLoad}
-      onUnmount={onUnmount}
-      onClick={handleMapClick}
-      options={{
-        streetViewControl: false,
-        mapTypeControl: false,
-        clickableIcons: false,
-        fullscreenControl: true,
-        fullscreenControlOptions: {
-          position: window.google.maps.ControlPosition.RIGHT_BOTTOM,
-        },
-      }}
-    >
+    <>
+      <style>
+        {`
+          /* InfoWindowの閉じるボタンのスタイル */
+          .gm-style-iw button.gm-ui-hover-effect {
+            width: 12px !important;
+            height: 12px !important;
+            top: 3px !important;
+            right: 3px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: transparent !important;
+            border: none !important;
+            position: absolute !important;
+            opacity: 1 !important;
+            outline: none !important;
+          }
+          /* 元の画像を非表示 */
+          .gm-style-iw button.gm-ui-hover-effect img {
+            display: none !important;
+          }
+          /* ×印を描画 */
+          .gm-style-iw button.gm-ui-hover-effect::before {
+            content: "×";
+            display: block !important;
+            width: 100%;
+            height: 100%;
+            font-size: 12px;
+            line-height: 12px;
+            text-align: center;
+            color: #666;
+            font-family: sans-serif;
+          }
+        `}
+      </style>
+      <GoogleMap
+        mapContainerStyle={containerStyle}
+        center={defaultCenter}
+        zoom={13}
+        onLoad={onLoad}
+        onUnmount={onUnmount}
+        onClick={handleMapClick}
+        options={{
+          streetViewControl: false,
+          mapTypeControl: false,
+          clickableIcons: false,
+          fullscreenControl: true,
+          fullscreenControlOptions: {
+            position: window.google.maps.ControlPosition.RIGHT_BOTTOM,
+          },
+        }}
+      >
       {pins.map(pin => (
         <Marker
           key={pin.id}
@@ -137,7 +172,7 @@ function MapView({ pins, onPinAdded, mapRefreshTrigger }) {
                   onChange={(e) => setComment(e.target.value)}
                   placeholder="コメントを入力..."
                   className="comment-textarea"
-                  style={{ width: '200px', height: '60px', marginBottom: '5px' }}
+                  style={{ height: '60px', marginBottom: '5px' }}
                 />
                 <button type="submit" className="submit-button">
                   投稿
@@ -147,7 +182,8 @@ function MapView({ pins, onPinAdded, mapRefreshTrigger }) {
           </InfoWindow>
         </Marker>
       )}
-    </GoogleMap>
+      </GoogleMap>
+    </>
   );
 }
 

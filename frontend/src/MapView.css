@@ -4,7 +4,8 @@
 }
 
 .comment-textarea {
-  width: calc(100% - 10px); /* 左右のpaddingを考慮 */
+  width: 100%;
+  box-sizing: border-box;
   min-height: 60px;
   margin-bottom: 8px;
   padding: 4px;
@@ -14,6 +15,7 @@
   color: black;
   resize: vertical; /* 縦方向のリサイズを許可 */
   font-family: sans-serif; /* デフォルトフォントを指定 */
+  outline: none;
 }
 
 .submit-button {
